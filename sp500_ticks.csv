@@ -1,0 +1,500 @@
+spx,spx,416904
+AAPL,Apple Inc.,265598
+MSFT,Microsoft,272093
+GOOGL,Alphabet Inc. (Class A),208813719
+GOOG,Alphabet Inc. (Class C),208813720
+AMZN,Amazon,3691937
+NVDA,Nvidia,4815747
+META,Meta Platforms,107113386
+TSLA,"Tesla, Inc.",76792991
+LLY,Eli Lilly and Company,9160
+V,Visa Inc.,49462172
+AVGO,Broadcom Inc.,313130367
+UNH,UnitedHealth Group,13272
+JPM,JPMorgan Chase,1520593
+XOM,ExxonMobil,13977
+WMT,Walmart,13824
+MA,Mastercard,38685693
+JNJ,Johnson & Johnson,8719
+PG,Procter & Gamble,11054
+ORCL,Oracle Corporation,272800
+HD,Home Depot (The),7930
+ADBE,Adobe Inc.,265768
+CVX,Chevron Corporation,5684
+COST,Costco,272997
+MRK,Merck & Co.,70101545
+KO,Coca-Cola Company (The),8894
+ABBV,AbbVie,118089500
+BAC,Bank of America,10098
+PEP,PepsiCo,11017
+CRM,Salesforce,29624264
+NFLX,Netflix,15124833
+MCD,McDonald's,9408
+AMD,AMD,4391
+CSCO,Cisco,268084
+TMO,Thermo Fisher Scientific,12869
+INTC,Intel,270639
+ABT,Abbott,4065
+TMUS,T-Mobile US,125980227
+PFE,Pfizer,11031
+CMCSA,Comcast,267748
+DIS,Disney,6459
+NKE,"Nike, Inc.",10291
+DHR,Danaher Corporation,6442
+INTU,Intuit,270662
+VZ,Verizon,4901
+WFC,Wells Fargo,10375
+PM,Philip Morris International,49588376
+QCOM,Qualcomm,273544
+IBM,IBM,8314
+AMGN,Amgen,266145
+TXN,Texas Instruments,13096
+NOW,ServiceNow,109911821
+COP,ConocoPhillips,10885
+UNP,Union Pacific Corporation,13284
+BA,Boeing,4762
+SPGI,S&P Global,229629397
+GE,General Electric,498843743
+MS,Morgan Stanley,2841574
+UPS,United Parcel Service,6231002
+HON,Honeywell,4350
+CAT,Caterpillar Inc.,5437
+AMAT,Applied Materials,266093
+AXP,American Express,4721
+NEE,NextEra Energy,75960201
+SBUX,Starbucks,274105
+T,AT&T,37018770
+RTX,RTX Corporation,415342104
+LOW,Lowe's,9199
+BKNG,Booking Holdings,308728373
+GS,Goldman Sachs,4627828
+ELV,Elevance Health,173962302
+ISRG,Intuitive Surgical,9063285
+DE,John Deere,6393
+TJX,TJX Companies,12814
+PLD,Prologis,88819288
+BMY,Bristol Myers Squibb,5111
+BLK,BlackRock,5049
+MDT,Medtronic,181387075
+LMT,Lockheed Martin,611191
+MMC,Marsh McLennan,9705
+SYK,Stryker Corporation,4430948
+MDLZ,Mondelez International,113599091
+LRCX,Lam Research,271308
+ADP,ADP,4661
+GILD,Gilead Sciences,269753
+PGR,Progressive Corporation,11080
+AMT,American Tower,99831145
+ADI,Analog Devices,4157
+VRTX,Vertex Pharmaceuticals,275850
+CB,Chubb Limited,218939694
+ETN,Eaton Corporation,118017869
+CVS,CVS Health,2585769
+C,Citigroup,87335484
+MU,Micron Technology,9939
+REGN,Regeneron,273733
+CI,Cigna,346403540
+SCHW,Charles Schwab Corporation,11905
+SNPS,Synopsys,274499
+ZTS,Zoetis,121665622
+BSX,Boston Scientific,5270
+PANW,Palo Alto Networks,110619459
+CME,CME Group,45127739
+KLAC,KLA Corporation,270957
+FI,Fiserv,269315
+SO,Southern Company,12300
+BX,Blackstone,372834689
+SLB,Schlumberger,12200
+CDNS,Cadence Design Systems,5552
+EQIX,Equinix,181764593
+EOG,EOG Resources,6890
+MO,Altria,9769
+DUK,Duke Energy,110176011
+BDX,Becton Dickinson,4886
+AON,Aon,414366114
+NOC,Northrop Grumman,10376
+ITW,Illinois Tool Works,8620
+SHW,Sherwin-Williams,12120
+CSX,CSX,6150
+ICE,Intercontinental Exchange,136370275
+WM,Waste Management,13379
+PYPL,PayPal,199169591
+CL,Colgate-Palmolive,5749
+HUM,Humana,8251
+MCK,McKesson,9657
+APD,Air Products and Chemicals,4487
+CMG,Chipotle Mexican Grill,37655664
+TGT,Target Corporation,6437
+MPC,Marathon Petroleum,89495776
+FDX,FedEx,5100583
+ORLY,O'Reilly Auto Parts,82457808
+USB,U.S. Bank,11669769
+MCO,Moody's Corporation,6497
+ROP,Roper Technologies,2585629
+PH,Parker Hannifin,11094
+GD,General Dynamics,7496
+PXD,Pioneer Natural Resources,3142097
+ABNB,Airbnb,459530964
+ANET,Arista Networks,153912055
+MSI,Motorola Solutions,81581011
+APH,Amphenol,4493
+TDG,TransDigm Group,38285434
+AJG,Arthur J. Gallagher & Co.,4325
+PSX,Phillips 66,105669270
+MMM,3M,9720
+FCX,Freeport-McMoRan,7089
+NXPI,NXP Semiconductors,77791077
+PNC,PNC Financial Services,11240
+TT,Trane Technologies,406709270
+MAR,Marriott International,9358
+EMR,Emerson Electric,6842
+HCA,HCA Healthcare,85076790
+LULU,Lululemon Athletica,45157951
+WELL,Welltower,207739931
+NSC,Norfolk Southern Railway,10497
+AZO,AutoZone,4750
+PCAR,Paccar,272992
+CTAS,Cintas,268149
+ADSK,Autodesk,265681
+ECL,Ecolab,6682
+MCHP,Microchip Technology,271568
+ACN,Accenture,67889930
+ADM,ADM,4165
+AFL,Aflac,4227
+A,Agilent Technologies,1715006
+AKAM,Akamai,6220356
+ALB,Albemarle Corporation,4347
+ARE,Alexandria Real Estate Equities,6607487
+ALGN,Align Technology,11459264
+LNT,Alliant Energy,5026984
+ALL,Allstate,4357
+AMCR,Amcor,364845429
+AEE,Ameren,13181
+AEP,American Electric Power,4211
+AIG,American International Group,61319701
+AWK,American Water Works,50530752
+AMP,Ameriprise Financial,35970258
+AME,Ametek,4392
+ANSS,Ansys,4726368
+APTV,Aptiv,298541832
+ACGL,Arch Capital Group,10763362
+ATO,Atmos Energy,4644
+AVB,AvalonBay Communities,5026974
+AVY,Avery Dennison,4694
+AXON,Axon Enterprise,272104927
+BKR,Baker Hughes,281316445
+BALL,Ball Corporation,5052
+BAX,Baxter International,8111188
+WRB,Berkley,266822
+BBY,Best Buy,4817
+BIIB,Biogen,26734397
+BK,BNY Mellon,44986804
+BR,Broadridge Financial Solutions,43523793
+BRO,Brown & Brown,6607613
+BG,Bunge Limited,12844443
+COF,Capital One,5941
+CAH,Cardinal Health,5407
+CCL,Carnival,5516
+CARR,Carrier Global,410755397
+CBRE,CBRE Group,95514904
+CDW,CDW,130432552
+CE,Celanese,32943358
+COR,Cencora,1714996
+CNC,Centene Corporation,13878278
+CNP,CenterPoint Energy,8093
+CF,CF Industries,35447205
+CHTR,Charter Communications,233674866
+CHD,Church & Dwight,5651
+CINF,Cincinnati Financial,267661
+CFG,Citizens Financial Group,167955370
+CLX,Clorox,5794
+CMS,CMS Energy,5840
+CTSH,Cognizant,4728759
+CAG,Conagra Brands,5402
+ED,Consolidated Edison,6691
+STZ,Constellation Brands,276066
+CEG,Constellation Energy,538132976
+COO,CooperCompanies,5960
+CPRT,Copart,4728523
+GLW,Corning Inc.,7655
+CTVA,Corteva,366239371
+CSGP,CoStar Group,6726677
+CTRA,Coterra,5946
+CCI,Crown Castle,176571182
+CMI,Cummins,6207
+DHI,D.R. Horton,268627
+DRI,Darden Restaurants,661440
+DAL,Delta Air Lines,44001820
+DVN,Devon Energy,754442
+DXCM,Dexcom,33837089
+FANG,Diamondback Energy,115441080
+DLR,Digital Realty,31832526
+DFS,Discover Financial,44652220
+DG,Dollar General,70212228
+DLTR,Dollar Tree,49388062
+D,Dominion Energy,6327
+DPZ,Domino's,29831612
+DOV,Dover Corporation,6517
+DOW,Dow Inc.,356576040
+DTE,DTE Energy,6585
+DD,DuPont,365921621
+EBAY,eBay,4347086
+EIX,Edison International,11899
+EW,Edwards Lifesciences,8101142
+EA,Electronic Arts,268995
+ENPH,Enphase,105368327
+ETR,Entergy,6969
+EPAM,EPAM Systems,101898880
+EQT,EQT,57698865
+EFX,Equifax,6735
+EQR,Equity Residential,6917
+ESS,Essex Property Trust,6946
+EL,Estée Lauder Companies (The),1448477
+EG,Everest Re,6477725
+ES,Eversource,182880167
+EXC,Exelon,11000
+EXPE,Expedia Group,98542021
+EXPD,Expeditors International,269082
+EXR,Extra Space Storage,30351205
+FDS,FactSet,1847145
+FICO,Fair Isaac,269280
+FAST,Fastenal,269120
+FITB,Fifth Third Bank,269318
+FSLR,First Solar,41622169
+FE,FirstEnergy,3265376
+FIS,FIS,37866641
+FLT,Fleetcor,81835582
+F,Ford Motor Company,9599491
+FTNT,Fortinet,70236214
+FTV,Fortive,236074120
+GRMN,Garmin,76791198
+IT,Gartner,4457287
+GEHC,GE HealthCare,601776309
+GIS,General Mills,7616
+GM,General Motors,80986742
+GPC,Genuine Parts Company,7745
+GPN,Global Payments,11477774
+HAL,Halliburton,7890
+HIG,Hartford (The),1217009
+HSY,Hershey's,8199
+HES,Hess Corporation,39118796
+HPE,Hewlett Packard Enterprise,209411798
+HLT,Hilton Worldwide,257944570
+HOLX,Hologic,270188
+HST,Host Hotels & Resorts,8057
+HWM,Howmet Aerospace,403121976
+HPQ,HP Inc.,209411801
+HUBB,Hubbell Incorporated,216386790
+HBAN,Huntington Bancshares,270018
+IEX,IDEX Corporation,8377
+IDXX,Idexx Laboratories,270413
+ILMN,Illumina,9869443
+IR,Ingersoll Rand,404509190
+PODD,Insulet,44061838
+IFF,International Flavors & Fragrances,8385
+INVH,Invitation Homes,264405214
+IQV,IQVIA,295757261
+IRM,Iron Mountain,180350774
+JBHT,J.B. Hunt,270825
+J,Jacobs Solutions,582332987
+JCI,Johnson Controls,244164913
+K,Kellogg's,8758
+KVUE,Kenvue,629043863
+KDP,Keurig Dr Pepper,324057162
+KEYS,Keysight,170167160
+KMB,Kimberly-Clark,8864
+KMI,Kinder Morgan,83975037
+KHC,Kraft Heinz,199169586
+KR,Kroger,8908
+LHX,L3Harris,371886040
+LH,LabCorp,661507
+LW,Lamb Weston,253184108
+LVS,Las Vegas Sands,32602412
+LDOS,Leidos,134280621
+LEN,Lennar,9091
+LIN,Linde plc,617155599
+LYV,Live Nation Entertainment,37511786
+LKQ,LKQ Corporation,26345312
+L,Loews Corporation,9252
+LYB,LyondellBasell,74866700
+MTB,M&T Bank,2585323
+MRO,Marathon Oil,9831
+MLM,Martin Marietta Materials,9690
+MAS,Masco,9360
+MKC,McCormick & Company,271556
+MET,MetLife,8093509
+MTD,Mettler Toledo,6477908
+MAA,Mid-America Apartment Communities,9317
+MRNA,Moderna,344809106
+MOH,Molina Healthcare,19012089
+MPWR,Monolithic Power Systems,32106121
+MNST,Monster Beverage,196986496
+MSCI,MSCI,47101335
+NDAQ,"Nasdaq, Inc.",29380756
+NTAP,NetApp,49921110
+NEM,Newmont,10174
+NDSN,Nordson Corporation,272314
+NTRS,Northern Trust,272565
+NUE,Nucor,10557
+NVR,"NVR, Inc.",755864
+OXY,Occidental Petroleum,10880
+ODFL,Old Dominion,272667
+OMC,Omnicom Group,10811
+ON,ON Semiconductor,8677881
+OKE,ONEOK,10794
+OTIS,Otis Worldwide,410755402
+PKG,Packaging Corporation of America,7740411
+PAYX,Paychex,272942
+PCG,PG&E Corporation,2586035
+POOL,Pool Corporation,39195389
+PPG,PPG Industries,11295
+PPL,PPL Corporation,661547
+PFG,Principal Financial Group,11032
+PRU,Prudential Financial,13865082
+PTC,PTC,121507047
+PEG,Public Service Enterprise Group,11005
+PSA,Public Storage,12002
+PHM,PulteGroup,11109
+PWR,Quanta Services,6608432
+DGX,Quest Diagnostics,2459465
+RJF,Raymond James,11656
+O,Realty Income,10672
+RF,Regions Financial Corporation,273815
+RSG,Republic Services,6478024
+RMD,ResMed,4817352
+ROK,Rockwell Automation,11697
+ROST,Ross Stores,273939
+RCL,Royal Caribbean Group,11520
+SBAC,SBA Communications,262397910
+STX,Seagate Technology,491932113
+SRE,Sempra Energy,11020
+SPG,Simon Property Group,2009113
+SWKS,Skyworks Solutions,4726021
+SNA,Snap-on,12259
+LUV,Southwest Airlines,9282
+SWK,Stanley Black & Decker,73354293
+STT,State Street Corporation,2730980
+STLD,Steel Dynamics,6478095
+STE,Steris,358060563
+SYF,Synchrony Financial,4430948
+SYY,Sysco,12581
+TROW,T. Rowe Price,275321
+TTWO,Take-Two Interactive,6478131
+TRGP,Targa Resources,81671838
+TEL,TE Connectivity,85548741
+TDY,Teledyne Technologies,85548741
+TER,Teradyne,12729
+TXT,Textron,13101
+TSCO,Tractor Supply,6858322
+TRV,Travelers Companies (The),43150617
+TFC,Truist,393460310
+TYL,Tyler Technologies,13116
+TSN,Tyson Foods,275405
+ULTA,Ulta Beauty,46970422
+UAL,United Airlines Holdings,79498203
+URI,United Rentals,3629755
+VLO,Valero Energy,13497
+VTR,Ventas,4044062
+VLTO,Veralto,655276622
+VRSN,Verisign,4173050
+VRSK,Verisk,69293559
+VICI,Vici Properties,292080616
+VMC,Vulcan Materials Company,13515
+GWW,W. W. Grainger,7867
+WAB,Wabtec,661633
+WBA,Walgreens Boots Alliance,178634687
+WBD,Warner Bros. Discovery,554208351
+WAT,Waters Corporation,1448494
+WEC,WEC Energy Group,198560237
+WST,West Pharmaceutical Services,13909
+WDC,Western Digital,13681
+WY,Weyerhaeuser,13949
+WMB,Williams Companies,13805
+WTW,Willis Towers Watson,217947855
+XEL,Xcel Energy,10517
+XYL,Xylem Inc.,95703740
+YUM,Yum! Brands,3206042
+ZBH,Zimmer Biomet,12851783
+NWS,News Corp (Class B),129348130
+FOX,Fox Corporation (Class B),356858007
+MHK,Mohawk Industries,271967
+SEDG,SolarEdge,188625650
+ALK,Alaska Air Group,4352
+SEE,Sealed Air,4082282
+RL,Ralph Lauren Corporation,92306678
+ZION,Zions Bancorporation,276329
+DVA,DaVita Inc.,1035459
+VFC,VF Corporation,13440
+HAS,Hasbro,754956
+CMA,Comerica,5800
+WHR,Whirlpool Corporation,13751
+NCLH,Norwegian Cruise Line Holdings,120643512
+IVZ,Invesco,47550606
+XRAY,Dentsply Sirona,224225737
+FMC,FMC Corporation,7238
+FRT,Federal Realty,535271307
+BBWI,"Bath & Body Works, Inc.",502252263
+BEN,Franklin Templeton,4906
+PARA,Paramount Global,393897513
+GNRC,Generac,72529783
+TPR,"Tapestry, Inc.",292491487
+CTLT,Catalent,162231792
+BXP,Boston Properties,5021340
+FOXA,Fox Corporation (Class A),356858008
+AAL,American Airlines Group,139673266
+BWA,BorgWarner,5336
+CPB,Campbell Soup Company,5980
+PNW,Pinnacle West,11257
+NWSA,News Corp (Class A),129348126
+WYNN,Wynn Resorts,16454492
+UHS,Universal Health Services,13206
+JNPR,Juniper Networks,6248722
+PAYC,Paycom,148163036
+ETSY,Etsy,190480965
+RHI,Robert Half,11634
+AIZ,Assurant,27727424
+MKTX,MarketAxess,31918430
+MTCH,Match Group,430252818
+PEAK,Healthpeak,389700396
+HSIC,Henry Schein,3655640
+QRVO,Qorvo,179002152
+WRK,WestRock,198032496
+ALLE,Allegion,138438437
+CPT,Camden Property Trust,6004
+HRL,Hormel Foods,8153
+HII,Huntington Ingalls Industries,86033355
+AOS,A. O. Smith,12225
+CHRW,C.H. Robinson,36320731
+EMN,Eastman Chemical Company,6832
+CZR,Caesars Entertainment,435774408
+CRL,Charles River Laboratories,2730877
+FFIV,"F5, Inc.",6248713
+INCY,Incyte,4369855
+UDR,"UDR, Inc.",43274444
+TECH,Bio-Techne,172729810
+REG,Regency Centers,11574
+KMX,CarMax,2586156
+TFX,Teleflex,12750
+PNR,Pentair,153068487
+NRG,NRG Energy,10188791
+GL,Globe Life,375868349
+CDAY,Ceridian,315543544
+NI,NiSource,10260
+TRMB,Trimble Inc.,275294
+RVTY,Revvity,6737
+TAP,Molson Coors Beverage Company,33191300
+VTRS,Viatris,454859695
+JKHY,Jack Henry & Associates,270869
+MGM,MGM Resorts,9560
+AES,AES Corporation,2560358
+ROL,"Rollins, Inc.",11700
+KEY,KeyCorp,8809
+IP,International Paper,8511
+APA,APA Corporation,474515500
+KIM,Kimco Realty,8845
+SJM,J.M. Smucker Company (The),15130038
+ZBRA,Zebra Technologies,276304
+EVRG,Evergy,320106069
+IPG,Interpublic Group of Companies (The),8514
+GEN,Gen Digital,390332324
+MOS,Mosaic Company (The),88292752
