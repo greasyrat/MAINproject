@@ -15,25 +15,89 @@ import queue
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import math
-
-
-from auth import authenticate
-
-
-
-import gspread
-
-
-
-
-
+import psutil
+import subprocess
 import gspread
 import oauth2client
 from oauth2client.service_account import ServiceAccountCredentials
+import traceback
 
 
 
 
+
+def authenticate():
+    scope = ['https://spreadsheets.google.com/feeds',
+         'https://www.googleapis.com/auth/spreadsheets',
+         'https://www.googleapis.com/auth/drive.file',
+         'https://www.googleapis.com/auth/drive']
+    creds = ServiceAccountCredentials.from_json_keyfile_name('cs.json', scope)
+    client = gspread.authorize(creds)
+    return client
+
+
+
+
+# Disable warnings for self-signed certificates
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# Path to the user's Desktop
+desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+
+# Path to PowerShell and EXE scripts
+ahk_script_path1 = os.path.join(desktop_path, "ibkrconnect.ps1")
+ahk_script_path2 = os.path.join(desktop_path, "sendenterintoibkrurl.exe")
+
+# Start the first script (PowerShell)
+subprocess.run(['start', '', ahk_script_path1], shell=True)
+time.sleep(15.5)
+
+# Start the second script (EXE)
+subprocess.run(['start', '', ahk_script_path2], shell=True)
+time.sleep(52.5)
+
+# URL to poll
+url = "https://localhost:5000/sso/Dispatcher"
+
+# Function to close all Firefox processes
+def close_firefox():
+    for proc in psutil.process_iter(['name']):
+        if proc.info['name'] and "firefox" in proc.info['name'].lower():
+            try:
+                proc.terminate()
+            except Exception as e:
+                print(f"⚠️ Could not terminate process {proc.pid}: {e}")
+
+# Loop until the desired text appears in the response
+
+retry_count = 0
+max_retries = 3
+
+while True:
+    try:
+        response = requests.get(url, verify=False)
+        if "Client login succeeds" in response.text:
+            print("✅ Page displays 'Client login succeeds'")
+            break
+        else:
+            if retry_count < max_retries:
+                print("🔁 Still waiting... Text not found.")
+                # Close Firefox
+                print("🛑 Closing Firefox...")
+                close_firefox()
+                time.sleep(3)
+                # Restart the .exe script
+                print("🔄 Restarting sendenterintoibkrurl.exe...")
+                subprocess.run(['start', '', ahk_script_path2], shell=True)
+                time.sleep(52.5)  # Wait before checking again
+                retry_count += 1
+            else:
+                print("❌ Max retries reached. Exiting loop.")
+                break
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error accessing URL: {e}")
+
+time.sleep(12.5)
 
 
 
@@ -97,13 +161,10 @@ def load_previous_data(directory):    # Load the file that came right before the
     if len(files) < 2:  #if there are less than 2 pickle files in the directory, return None
         print("no previous data")
         return None
-    
     full_paths = [os.path.join(directory, f) for f in files]    #get the full paths of the pickle files
-
     latest_file = max(full_paths, key=os.path.getctime)   #get the path of the latest file
     previous_files = sorted(full_paths, key=os.path.getctime)[:-1]  #get all files except the latest one and sort them by creation time
     previous_file = previous_files[-1] if previous_files else None  #get the path of the file that came right before the latest file
-
     if previous_file:
         with open(previous_file, 'rb') as file:   #open the previous file
             return pickle.load(file)    #load the data from the previous file
@@ -256,13 +317,9 @@ def handle_error(error_type=ReauthenticationError, retry_count=0):
 def market_snapshot(x,y): #this function recieves 2 arguments, x and y, which are the start and end indices of the conids list, respectively and returns the market data
     base_url = "https://localhost:5000/v1/api"
     endpoint = "iserver/marketdata/snapshot"
-
     #                 ADD 
-
     # 7289 - Market Cap.
     fields = "fields=55,31,83,7762,7289"
-
-    
     conid = cut_conids(x,y)
     # Updated this line to include a "/" between base_url and endpoint
     request_url = "/".join([base_url, endpoint]) + "?" + conid + "&" + fields
@@ -305,22 +362,18 @@ def run_with_timeout(func, timeout=15, *args):
             future = executor.submit(func, *args)
             try:
                 result = future.result(timeout=timeout)
-                
                  # Check if the result is an empty DataFrame
                 if isinstance(result, pd.DataFrame) and result.empty:
                     print("Empty DataFrame received! Restarting...")
                     retries += 1
                     continue  # Continue to the next round in the while loop
-
                 # Check if the result is a list and if the first dict in the list has fewer than 10 keys
                 if (isinstance(result, list) and result and isinstance(result[0], dict) and len(result[0]) < 5) or result == None:
                     time.sleep(10)
                     print("The first dictionary has fewer than 5 keys! Restarting...")
                     retries += 1
-                    continue  # Continue to the next round in the while loop
-                
+                    continue  # Continue to the next round in the while loo
                 return result
-                
             except (ReauthenticationError, ValidationError, QueryError) as e:
                 print(e)
                 handle_error(type(e))
@@ -349,67 +402,41 @@ def init():
         os.makedirs(nvols_vols_and_bins_directory)
     if not os.path.exists(raw_data_directory):
         os.makedirs(raw_data_directory)
-
-
-
-
     # Load the latest data from the nvols_vols_and_bins directory
     nvols_vols_and_bins = load_previous_data(nvols_vols_and_bins_directory)
     # If there is no data, initialize the data
-
-
-
-
-
     #############################################################################                                                !      !     !       !
     if nvols_vols_and_bins == None:
         market_snapshot(0, num_ticks) #initialize the data subscription
         init_spx = run_with_timeout(market_snapshot,15,0,1) #get the initial spx data
-
-
-
-
-
-
-
-
-
-
-
         #convert the spx data to a dataframe and rename the columns
         init_spx = pd.DataFrame(init_spx)
         init_spx.rename(columns={'31': 'Last', '55': 'Symbol', '83': 'percent_change', '7762': 'Volume'}, inplace=True)
-        #print(init_spx['percent_change'])
         #init_spx['cap']= init_spx['cap'].str.replace('B', '').str.replace(',', '').replace('', np.nan).astype(float)
         if datetime.now().time() > datetime.strptime("00:00:00", "%H:%M:%S").time():
+            init_spx['percent_change'] = (
+                pd.to_numeric(init_spx['percent_change'], errors='coerce')
+                .fillna(0.0)  # or dropna() instead, if preferred
+                )
             init_spx['percent_change'] = init_spx['percent_change'].astype(float) #convert the %change to a float
             init_spx['Last'] = pd.to_numeric(init_spx['Last']) #convert the last price to a float
             #round the spx data to the closest intiger that's a multiple of 5
             spx_close = get_spx_close(init_spx)# the problem is here
         else:
             spx_close = float(['Last'][0])
-        
         spx_close_round = round(spx_close/5)*5
-        
         spx_series = {'time': [],'last': [], 'percent_change':[]}
         standard_deviation_series = {'stds': [], 'time': []}
         prev_volumes = np.zeros(num_ticks-1)
         total_nvols = np.zeros(num_ticks-1)
         low_res_bins = np.arange(spx_close_round-300,spx_close_round+300,5)
         low_res_nvols_in_bins = np.zeros(len(low_res_bins))
-
         #print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-
-
         mid_res_bins = np.arange(spx_close_round-300,spx_close_round+300,2.5)
-
         #bins = np.linspace(-0.1, 0.1, 480)
         #print(bins)
         #print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-
         mid_res_nvols_in_bins = np.zeros(len(mid_res_bins))
-
-
         #origional    mid_res_nvols_in_bins = np.zeros(len(mid_res_bins))
         #start = 0
         #end = 1  # adjust this as needed for your data range
@@ -417,13 +444,8 @@ def init():
         #bins = np.arange(start, end + step, step)
         #print(bins)
         #mid_res_nvols_in_bins = np.zeros(len(bins))
-
         Pdata_res_bins = np.arange(spx_close_round-300,spx_close_round+300,2.5)
         Pdata_res_nvols_in_bins = np.zeros(len(Pdata_res_bins))
-
-
-        
-
         high_res_bins = np.arange(spx_close_round-300,spx_close_round+300,1)
         high_res_nvols_in_bins = np.zeros(len(high_res_bins))
         ultra_res_bins = np.arange(spx_close_round-300,spx_close_round+300,0.1)
@@ -434,14 +456,8 @@ def init():
                             'Pdata_res_bins': Pdata_res_bins, 'Pdata_res_nvols_in_bins': Pdata_res_nvols_in_bins, 'Pdata_res_nvols_diff': np.zeros(len(Pdata_res_bins)),
                             'high_res_bins': high_res_bins, 'high_res_nvols': high_res_nvols_in_bins, 'high_res_nvols_diff': np.zeros(len(high_res_bins)),
                             'ultra_res_bins': ultra_res_bins, 'ultra_res_nvols': ultra_res_nvols_in_bins, 'ultra_res_nvols_diff': np.zeros(len(ultra_res_bins))} 
-    
     print("init done")
     return nvols_vols_and_bins, raw_data_directory, nvols_vols_and_bins_directory
-
-
-
-
-
 
 
 
@@ -455,28 +471,31 @@ def data_prep(data,nvols_vols_and_bins,num_batch):
     #separate the first row of the dataframe (SPX) into a separate dataframe called spx, then remove it from the original dataframe, while keeoing only the percent change column in the second dataframe 
     #print(orig_df.columns)
     #print(orig_df['percent_change'])
-
-
-
-
-
-
-
+    orig_df.loc[orig_df['Symbol'] == 'UNH', 'cap'] = 0
     #                                                  # MUST SORT BY CAP SIZE
-
-
-
     capsDATA = pd.DataFrame(orig_df[['percent_change','cap']])
+    capsDATA['cap'] = capsDATA['cap'].str.replace("'", '', regex=False)
+    capsDATA['cap'] = capsDATA['cap'].apply(
+        lambda x: '0' if isinstance(x, str) and x.strip().endswith('M') else x
+    )
     capsDATA['percent_change'] = capsDATA['percent_change'].astype(float)
     capsDATA['cap'] = capsDATA['cap'].str.replace('B', '').replace('', 0).str.replace(',', '').astype(float)
+    lowerbound_percent = -3.2566
+    # DATA
+    upperbound_percent = 3.725
+    capsDATA2 =capsDATA
+    num_zeroed = capsDATA2.loc[capsDATA['percent_change'] > upperbound_percent, 'cap'].sum()
+    num_zeroed3 = capsDATA2.loc[capsDATA['percent_change'] < lowerbound_percent, 'cap'].sum()
+    num_zeroed = num_zeroed + num_zeroed3
+    print(num_zeroed)
+    num_zeroed2 = num_zeroed/(capsDATA['cap'].sum())
+    print(num_zeroed2)
+    capsDATA.loc[capsDATA['percent_change'] > upperbound_percent, 'cap'] = 0
+    capsDATA.loc[capsDATA['percent_change'] < lowerbound_percent, 'cap'] = 0
+    first_10 = capsDATA.iloc[4:40]
+    print(first_10)
     capsDATA = capsDATA.sort_values(by='cap', ascending=False).reset_index(drop=True)
     capsDATA = capsDATA.dropna()
-
-    print(capsDATA)
-
-
-    
-
     df_sorted1 = capsDATA.sort_values(by='percent_change')
     # Calculate the cumulative sum of the weights
     df_sorted1['cum_weight'] = df_sorted1['cap'].cumsum()
@@ -484,37 +503,20 @@ def data_prep(data,nvols_vols_and_bins,num_batch):
     total_weight1 = df_sorted1['cap'].sum()
     # Find the weighted median: locate the value where the cumulative weight is >= half of the total weight
     min1mediaCAPS = df_sorted1.loc[df_sorted1['cum_weight'] >= total_weight1 / 2, 'percent_change'].iloc[0]
-
-
-
     min1meanCAPS = (capsDATA['percent_change'] * capsDATA['cap']).sum() / capsDATA['cap'].sum()
-
-
-
-
-
-
-
-
-
-
-
-
-
     spx = orig_df.iloc[0:1].copy()
     spx = spx                                                                                                                                                                                                             [['_updated', 'percent_change', 'Last']] #keep only the percent change and volume columns
     nvols_vols_and_bins['SPX']['time'].append(datetime.now())   #add the time to the spx series
     nvols_vols_and_bins['SPX']['last'].append(float(spx['Last'][0])) #add the last price to the spx series
     nvols_vols_and_bins['SPX']['percent_change'].append(spx['percent_change'].item()/100)   #add the %change to the spx series
-
-
-
     df = orig_df.iloc[1:].copy() #separaate the second dataframe containing all the stocks data from the original dataframe
     # change marketcap values to numbers, ALL OF THEM ARE IN Bills so just remove :B:
-
     # print(df['cap'])
+    df['cap'] = df['cap'].apply(
+        lambda x: '0' if isinstance(x, str) and x.strip().endswith('M') else x
+    )
     df['cap']= df['cap'].str.replace('B', '').replace('', 0).str.replace(',', '').astype(float)
-
+    print("###########################")
     # print(df['cap'])
     df['percent_change'] = df['percent_change'].astype(float) #convert the %change column to float
     df['percent_change1'] = df['percent_change'].astype(float)
@@ -525,35 +527,21 @@ def data_prep(data,nvols_vols_and_bins,num_batch):
     momentary_vol_norm = np.multiply(momentary_vol,multipliers_vector)
     norm_non_norm_diff = np.subtract(momentary_vol,momentary_vol_norm)  #calculate the difference between the normalized and non-normalized notional volume
     df['Last'] = pd.to_numeric(df['Last'], errors='coerce').fillna(0) #convert the last column to float
-
-
-    
-
     df['percent_change'] = ((1+(df['percent_change']/100)))*nvols_vols_and_bins['SPX_close'] #convert the %change to a decimal
-
-
-
-
-
     df['total_nvols'] = nvols_vols_and_bins['total_nvols'] #add the total notional volume to the dataframe
     nvols_norm = np.multiply(momentary_vol_norm,df['Last'].to_numpy()) #calculate the normalized notional volume
     nvols_non_norm = np.multiply(norm_non_norm_diff,df['Last'].to_numpy()) #calculate the non-normalized notional volume
     nvols_norm[nvols_norm < 0] = 0 #set the notional volume to 0 if the volume is negative    
     nvols_non_norm[nvols_non_norm < 0] = 0 #set the notional volume to 0 if the volume is negative                
     df['norm_nvols'] = nvols_norm #add the notiona volume to the dataframe
+    #nvols_norm[:7] = [0] * 7
+    print(nvols_norm)
     Nvolchng = round(df['norm_nvols'].sum()/1000000)   ##################################################### store varible of total Nvol sum change latest ############
     df['norm_diff'] = norm_non_norm_diff
     df['total_nvols'] = np.add(nvols_norm,df['total_nvols']) #add the notional volume to the total notional volume
     spxLAST = orig_df['Last'].iloc[0]
     #print(spxLAST)
-
-
-
     min1mean = (df['percent_change1'] * df['norm_nvols']).sum() / df['norm_nvols'].sum()
-
-
-
-
     df_sorted = df.sort_values(by='percent_change1')
     # Calculate the cumulative sum of the weights
     df_sorted['cum_weight'] = df_sorted['norm_nvols'].cumsum()
@@ -561,16 +549,6 @@ def data_prep(data,nvols_vols_and_bins,num_batch):
     total_weight = df_sorted['norm_nvols'].sum()
     # Find the weighted median: locate the value where the cumulative weight is >= half of the total weight
     min1median = df_sorted.loc[df_sorted['cum_weight'] >= total_weight / 2, 'percent_change1'].iloc[0]
-
-
-
-
-
-
-
-
-
-
     NvollatestSUM = round(df['total_nvols'].sum()/1000000000,1)
     #print(df.columns)
     ### __________________________________________________________________________   PRICE DATA END   _____________________
@@ -579,19 +557,15 @@ def data_prep(data,nvols_vols_and_bins,num_batch):
     #Pdata['percent_change'] = Pdata['percent_change'].astype(float)
     #df['cap'] = orig_df['cap'].astype(float)
     ### __________________________________________________________________________   PRICE DATA END PREP  _____________________
-
     #            #                  #                  #              #                    SEND DATA to G shets here                  #           #
-
     # # Update the Google Sheets worksheet with new data
     # #starting_cell = 'N2'
     # #worksheet = sht1.get_worksheet(0)
     # #worksheet.update(starting_cell,[df_binned.columns.values.tolist()] + df_binned.values.tolist())
     # # SEND THIS TO GSHETS 
-
     today = datetime.today()
     numpy_array = (np.fromstring(nvols_vols_and_bins['mid_res_nvols']))
     #print(nvols_vols_and_bins['mid_res_nvols'])
-
     numpy_array1 = pd.DataFrame(numpy_array)
     numpy_array1['date'] = today.strftime('%Y-%m-%d')
     #numpy_array2 = numpy_array1.iloc[:, 0]
@@ -599,18 +573,10 @@ def data_prep(data,nvols_vols_and_bins,num_batch):
     #print(df33)
     nvols_vols_and_bins['total_nvols'] = df['total_nvols'].to_numpy() #update the total notional volume
     nvols_vols_and_bins['prev_volumes'] = df['Volume'].to_numpy() #update the previous volumes
-
-
-
     #keys = nvols_vols_and_bins.keys()
-
     # Convert to list (optional, depending on your needs)
     #keys_list = list(keys)
-    #print(keys_list)    
-
-    #                                                                                                                                       CSV  EXPORT PLACE
-
-
+    #print(keys_list)                                                                                                                                   CSV  EXPORT PL
     # current_time = datetime.now().strftime('%H-%M-%S') #get the current time
     # csv_path = os.path.join(raw_data_directory, f"num_batch-{num_batch}_time-{current_time}.csv") # create a path to the csv file 
     # csv_path1 = "NvolchangeLAST-"+current_time+".csv" # create a path to the csv file 
@@ -623,9 +589,11 @@ def data_prep(data,nvols_vols_and_bins,num_batch):
     # full_path = os.path.join(folder_path, csv_path1)
     # # Write the DataFrame to the CSV file
     # df3.to_csv(full_path, index=False, header=False)
-
-
-    #print(nvols_vols_and_bins['mid_res_nvols'].astype(float))
+    print("*********************************************************************************************************")
+    with pd.option_context('display.max_rows',100):
+        p1 = pd.DataFrame(nvols_vols_and_bins['mid_res_nvols'])
+        print(p1)
+    print("*********************************************************************************************************")
     return nvols_vols_and_bins, df,NvollatestSUM,Nvolchng,spxLAST,capsDATA,min1mean,min1median,min1mediaCAPS,min1meanCAPS
 
 
@@ -636,7 +604,10 @@ def data_prep(data,nvols_vols_and_bins,num_batch):
 #######################this function bins the data and aggregates it##########################
 def bin_and_aggregate(df, nvols_vols_and_bins):
     reses = ['low', 'mid' ,'high', 'ultra']
-
+    print("_________NOT_____________OMMITED FIRST 7 VOLUMES_______________________")
+    #df['norm_nvols'].iloc[:7] = 0
+    print(df['norm_nvols'])
+    print("______________________OMMITED FIRST 7 VOLUMES_______________________")
     for res in reses:
         # Calculate bin indices for percent_change column
         bin_indices = np.digitize(df['percent_change'], nvols_vols_and_bins[f'{res}_res_bins'])
@@ -655,18 +626,12 @@ def bin_and_aggregate(df, nvols_vols_and_bins):
         # make the first and last bins 0
         nvols_vols_and_bins[f'{res}_res_nvols'][0] = 0
         nvols_vols_and_bins[f'{res}_res_nvols'][-1] = 0
-
-
-
-
         # bin the difference between the normalized and non-normalized notional volume
         # bin indices are the same as the percent changes are the same
         # Create a new DataFrame for aggregation
         aggregation_df = pd.DataFrame({'percent_change': df['percent_change'], 'nvols': df['norm_diff'], 'bin_indices': bin_indices})
         # Group by bin_indices and sum nvols values
         aggregated_data = aggregation_df.groupby('bin_indices')['nvols'].sum()
-
-
         # Ensure the length of aggregated data matches the resolution's buckets
         expected_length = len(nvols_vols_and_bins[f'{res}_res_bins'])
         if len(aggregated_data) < expected_length:
@@ -683,7 +648,6 @@ def bin_and_aggregate(df, nvols_vols_and_bins):
 #######################this function bins the data and aggregates it##########################
 # def bin_caps(df, nvols_vols_and_bins):
 #     peses = ['Pdata']
-
 #     for pes in peses:
 #         # Calculate bin indices for percent_change column
 #         bin_indices = np.digitize(df['percent_change'], nvols_vols_and_bins[f'{pes}_res_bins'])
@@ -701,8 +665,6 @@ def bin_and_aggregate(df, nvols_vols_and_bins):
 #         # make the first and last bins 0
 #         nvols_vols_and_bins[f'{pes}_res_nvols'][0] = 0
 #         nvols_vols_and_bins[f'{pes}_res_nvols'][-1] = 0
-
-
 #     return nvols_vols_and_bins
 #######################this function is the main loop##########################
 
@@ -714,16 +676,22 @@ def extract_datetime_from_filename(filename):
 
 
 
+
+
+
+
+
+
+
+
+
+
 def main_loop():
     open_time = datetime.strptime("00:00:00", "%H:%M:%S").time()
     close_time = datetime.strptime("23:56:00", "%H:%M:%S").time()
-
-
     # Initial authentication    
     client = authenticate()
     print("--------------gsheets authenticated")
-
-
     #set up a time zone where the data is null around 18:00
     time_before_null = datetime.strptime("17:59:50", "%H:%M:%S").time()
     time_after_null = datetime.strptime("18:00:25", "%H:%M:%S").time()   
@@ -748,57 +716,14 @@ def main_loop():
     if data == None:
         print("data is none")
         data = run_with_timeout(market_snapshot, 0, num_ticks)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     # MUST CONNECT MARKETCAPS SIZES FROM companymarketcaps.com daily (or most recent) scrape
-
-
     #           HERE i will get data for
-
     # MARKETCAP POSITOIONS
     # SPX(-) calculatoin realtime
     # GROUPS 1-4 calc
-
     #     GP1 Mp% vs MDp%    VS       nonGP1  Mp% vs MDp%
-
-
-
-
     data = pd.DataFrame(data)
-
-
     #print(list(data.columns))
-
-
-
-
-
-
-
-
-
-
-
-
     #check if the previous volumes are all 0, if they are, set the start volume to the current volume, otherwise, keep the previous volumes from the pickle file
     if np.array_equal(nvols_vols_and_bins['prev_volumes'], np.zeros(num_ticks-1)):
         start_vol =  pd.to_numeric(data['7762'][1:]).to_numpy()
@@ -812,7 +737,7 @@ def main_loop():
     #vol_multipliers = {'TSLA':0.2,'NVDA':0.4,'AMD':0.6,'AMZN':0.85}           
     multipliers_vector[4] = 0.85 #AMZN
     multipliers_vector[5] = 0.4 #NVDA
-    multipliers_vector[7] = 0.2 #TSLA
+    multipliers_vector[7] = 0.0 #TSLA               #################################################   TSLA OMMITED FULLY
     multipliers_vector[31] = 0.6    #AMD
     #main loop that runs while the market is open
     while datetime.now().time() < close_time:
@@ -823,10 +748,8 @@ def main_loop():
             print(run_with_timeout(market_snapshot,15, 0, num_ticks))
             print(run_with_timeout(market_snapshot,15, 0, num_ticks))
             continue
-
         start_time = time.time()   #get the start time of this revolution of the loop
         num_batch+=1    #increment the batch number
-
         if num_batch%10 == 0:  #reauthenticate every 10 batches
             validate_session()
         if num_batch%50 == 0: #validate the session every 50 batches
@@ -838,52 +761,34 @@ def main_loop():
         #print("batch number:",num_batch,flush=True)
         #print("gathering data",flush=True)
         data = run_with_timeout(market_snapshot,15, 0, num_ticks)   #gather the data
-
-
-
         if data == None:    #if the data is none, try again
             print("data is none",flush=True)
             data = run_with_timeout(market_snapshot,15, 0, num_ticks)
         #print("data gathered",flush=True)
         #print("pre-processing data",flush=True)
-
         #              FETCH DATA TO SEND
-
         #  mid_res_nvols   DESTRIBUTION
         #  NvollatestSUM
         #  Nvolchng
         #  spxLAST
         nvols_vols_and_bins, df,NvollatestSUM,Nvolchng,spxLAST,capsDATA,min1mean,min1median,min1mediaCAPS,min1meanCAPS = data_prep(data,nvols_vols_and_bins,num_batch,)  #pre-process the data
-        
-
         GP1Mp = (capsDATA['percent_change'].iloc[:9] * capsDATA['cap'].iloc[:9]).sum() / capsDATA['cap'].iloc[:9].sum()
         GP234Mp = (capsDATA['percent_change'].iloc[9:] * capsDATA['cap'].iloc[9:]).sum() / capsDATA['cap'].iloc[9:].sum()
-
-
-        GP2Mp = (capsDATA['percent_change'].iloc[9:33] * capsDATA['cap'].iloc[9:33]).sum() / capsDATA['cap'].iloc[9:].sum()
+        GP2Mp = (capsDATA['percent_change'].iloc[9:33] * capsDATA['cap'].iloc[9:33]).sum() / capsDATA['cap'].iloc[9:33].sum()
         GP3Mp = (capsDATA['percent_change'].iloc[33:123] * capsDATA['cap'].iloc[33:123]).sum() / capsDATA['cap'].iloc[33:123].sum()
         GP4Mp = (capsDATA['percent_change'].iloc[123:] * capsDATA['cap'].iloc[123:]).sum() / capsDATA['cap'].iloc[123:].sum()
-
         # # Calculate the bin edges based on 0.0416666% increments of the reference column
         # # Convert the percentage increment to a multiplier (0.0416666% of each value in reference_column)
         # bin_edges = pData['percent_change'] * (1 + 0.00125)  # 0.0416666% increment
         # bin_edges = sorted(bin_edges)
         # # Create the bi ns using the `pd.cut()` function to categorize based on the bin edges
         # pData['binned'] = pd.cut(df['cap'], bins=bin_edges, include_lowest=True, right=False)
-
         # # Show the resulting DataFrame
         #print(pData)
-
-
-
-
-
-
-
+        print("######################################################$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
         percent_changeSPX = pd.DataFrame(nvols_vols_and_bins['SPX']['percent_change'])
         mid_res_nvolsDEST = pd.DataFrame(nvols_vols_and_bins['mid_res_nvols'].astype(float))
         #print(mid_res_nvolsDEST)
-
         #                                                               SEND TO GOOGLE SHEETS    START
         #                                                                SEND TO GOOGLE SHEETS    START
         #                                                                SEND TO GOOGLE SHEETS    START
@@ -896,29 +801,27 @@ def main_loop():
         df3 = pd.concat([mid_res_nvolsDEST, empty_rows], ignore_index=True)
         df3.at[244, 0] = NvollatestSUM
         df3.at[243, 0] = Nvolchng
-        df3.at[242, 0] = spxLAST       
+        df3.at[242, 0] = spxLAST    
+        print(NvollatestSUM) 
         #df3[0] = df3[0][::-1].reset_index(drop=True)
         #print(df3)
         #  mid_res_nvols   DESTRIBUTION
         #  NvollatestSUM
         #  Nvolchng
         #  spxLAST
-
         # ##########                                             10,30,90MIN YELLOWs                ##################
-        # ##########                                             10,30,90MIN YELLOWs                ################## 
-            
+        # ##########                                             10,30,90MIN YELLOWs                ##################   
         # part that refrences the data storage
-
+        print("######################################################$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
         today3 = (datetime.now() - timedelta(days=                                    0                                   )).strftime("%Y-%m-%d")
-
-
         folder_path3 = 'nvols_vols_and_bins_'+today3
         # Get a list of all files in the folder
         files = [f for f in os.listdir(folder_path3) if f.endswith('.pkl')]
         # flip the file order by sorting by datetime of creation
         files.sort(key=extract_datetime_from_filename, reverse=True)
         latest_90_files = files[:90]
-
+        print("######################################################$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        print(len(latest_90_files))
         if len(latest_90_files) > 0:
             # get 90 latest files in whole folder
             file1 = latest_90_files[0]
@@ -966,119 +869,74 @@ def main_loop():
             # files now listed by datetime of creaiton
             diff90MIN = pd.DataFrame(dfdiff90)
             #diff90MIN = diff90MIN[::-1].reset_index(drop=True)
-                
-
-
-
-
-
-
-
-
+            print("######################################################$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            #_________________________________ADD Nvol sum and tick data______________________________________________________________
             # _________________________________ADD Nvol sum and tick data______________________________________________________________
-
-            # _________________________________ADD Nvol sum and tick data______________________________________________________________
-
             # _________________________________ADD Nvol sum and tick data______________________________________________________________
             # Ensure dictionary keys exist before appending
             if 'Nvoltotallast' not in nvols_vols_and_bins:
                 nvols_vols_and_bins['Nvoltotallast'] = np.array([])  # Start with an empty array
-
             if 'Nvol_tick_sum' not in nvols_vols_and_bins:
                 nvols_vols_and_bins['Nvol_tick_sum'] = np.array([])
-
             if 'GP1Mprice' not in nvols_vols_and_bins:
                 nvols_vols_and_bins['GP1Mprice'] = np.array([]) 
-
             if 'GP234Mprice' not in nvols_vols_and_bins:
                 nvols_vols_and_bins['GP234Mprice'] = np.array([])      
-
-
             ##################################################################   groups 2, 3, 4
             if 'GP2Mprice' not in nvols_vols_and_bins:
                 nvols_vols_and_bins['GP2Mprice'] = np.array([])
-
             if 'GP3Mprice' not in nvols_vols_and_bins:
                 nvols_vols_and_bins['GP3Mprice'] = np.array([]) 
-
             if 'GP4Mprice' not in nvols_vols_and_bins:
                 nvols_vols_and_bins['GP4Mprice'] = np.array([])      
             #########################################################################
             if 'min1mean' not in nvols_vols_and_bins:
                 nvols_vols_and_bins['min1mean'] = np.array([]) 
-
             if 'min1median' not in nvols_vols_and_bins:
                 nvols_vols_and_bins['min1median'] = np.array([]) 
-
             if 'min1mediaCAPS' not in nvols_vols_and_bins:
                 nvols_vols_and_bins['min1mediaCAPS'] = np.array([]) 
-
             if 'min1meanCAPS' not in nvols_vols_and_bins:
                 nvols_vols_and_bins['min1meanCAPS'] = np.array([])           
-            
-
             # add existing data into active live pkl files
             nvols_vols_and_bins['Nvoltotallast'] = np.append([nvols_vols_and_bins['Nvoltotallast']], NvollatestSUM)
             nvols_vols_and_bins['Nvol_tick_sum'] = np.append([nvols_vols_and_bins['Nvol_tick_sum']], Nvolchng)
-
             nvols_vols_and_bins['min1mean'] = np.append([nvols_vols_and_bins['min1mean']], min1mean)
             nvols_vols_and_bins['min1median'] = np.append([nvols_vols_and_bins['min1median']], min1median)
             nvols_vols_and_bins['min1mediaCAPS'] = np.append([nvols_vols_and_bins['min1mediaCAPS']], min1mediaCAPS)
             nvols_vols_and_bins['min1meanCAPS'] = np.append([nvols_vols_and_bins['min1meanCAPS']], min1meanCAPS)
-
             nvols_vols_and_bins['GP1Mprice'] = np.append([nvols_vols_and_bins['GP1Mprice']], GP1Mp/100)
             nvols_vols_and_bins['GP234Mprice'] = np.append([nvols_vols_and_bins['GP234Mprice']], GP234Mp/100)
-
-
-
             nvols_vols_and_bins['GP2Mprice'] = np.append([nvols_vols_and_bins['GP2Mprice']], GP2Mp/100)
             nvols_vols_and_bins['GP3Mprice'] = np.append([nvols_vols_and_bins['GP3Mprice']], GP3Mp/100)
             nvols_vols_and_bins['GP4Mprice'] = np.append([nvols_vols_and_bins['GP4Mprice']], GP4Mp/100)
-
-
-
-
-
             tempDF  =  nvols_vols_and_bins['Nvol_tick_sum']
             Nvolticks = pd.DataFrame(tempDF)
             tempDF1  =  nvols_vols_and_bins['GP1Mprice']
             GP1priceticks = pd.DataFrame(tempDF1)
             tempDF2  =  nvols_vols_and_bins['GP234Mprice']
             GP234priceticks = pd.DataFrame(tempDF2)
-
-
             tempDF22  =  nvols_vols_and_bins['GP2Mprice']
             GP2priceticks = pd.DataFrame(tempDF22)
             tempDF23  =  nvols_vols_and_bins['GP3Mprice']
             GP3priceticks = pd.DataFrame(tempDF23)
             tempDF233  =  nvols_vols_and_bins['GP4Mprice']
             GP4priceticks = pd.DataFrame(tempDF233)
-
             tempDF2334  =  nvols_vols_and_bins['min1mean']
             min1mean = pd.DataFrame(tempDF2334)
-
             tempDF23354  =  nvols_vols_and_bins['min1median']
             min1median = pd.DataFrame(tempDF23354)
-
             tempDF233542  =  nvols_vols_and_bins['min1mediaCAPS']
             min1mediaCAPS = pd.DataFrame(tempDF233542)
-
             tempDF2233542  =  nvols_vols_and_bins['min1meanCAPS']
             min1meanCAPS = pd.DataFrame(tempDF2233542)
-
-
             # SEND df to sheets
             # SEND df to sheets
             # SEND df to sheets
-
             sht1 = client.open_by_key('1rwtnGjSjvr-t6kSFgaL6x--C3QJKN42sy92ya325_8A')
             worksheet = sht1.worksheet("DEST.liveDATA")
-
             ##############################    SEND TO   SPXtrender1     ########################################
-
             #   10, 30,  90 MIN YELLOW
-
-            
             diff10MINposition = 'U2'
             worksheet.update(diff10MINposition,[diff10MIN.columns.values.tolist()] + diff10MIN.values.tolist())
             print("s ---------------- sent 10MIN yellow --------")
@@ -1088,8 +946,6 @@ def main_loop():
             diff90MINposition = 'W2'
             worksheet.update(diff90MINposition,[diff90MIN.columns.values.tolist()] + diff90MIN.values.tolist())
             print("s ---------------- sent 90MIN yellow --------")
-
-
             #                                                                                                                          VARREF
             df3 = replace_nan_in_dataframe(df3)
             Nvolticks = replace_nan_in_dataframe(Nvolticks)
@@ -1099,13 +955,11 @@ def main_loop():
             GP2priceticks = replace_nan_in_dataframe(GP2priceticks)
             GP3priceticks = replace_nan_in_dataframe(GP3priceticks)
             GP4priceticks = replace_nan_in_dataframe(GP4priceticks)
-
             min1mean = replace_nan_in_dataframe(min1mean)
             min1median = replace_nan_in_dataframe(min1median)
             min1mediaCAPS = replace_nan_in_dataframe(min1mediaCAPS)
             min1meanCAPS = replace_nan_in_dataframe(min1meanCAPS)
             #  mid_res_nvols   DESTRIBUTION
-
             midRESnvolsCOL = 'T2'
             df3 = df3.replace([np.nan, np.inf, -np.inf], '')
             worksheet.update(midRESnvolsCOL,[df3.columns.values.tolist()] + df3.values.tolist())
@@ -1125,47 +979,37 @@ def main_loop():
             sendto = 'Z2'
             percent_changeSPX = percent_changeSPX.replace([np.nan, np.inf, -np.inf], '')
             worksheet.update(sendto,[percent_changeSPX.columns.values.tolist()] + percent_changeSPX.values.tolist())
-
-
-
             #  min1mean SERIES LIVE
             sendto = 'AK2'
             min1mean = min1mean.replace([np.nan, np.inf, -np.inf], '')
             worksheet.update(sendto,[min1mean.columns.values.tolist()] + min1mean.values.tolist())
-
-            #  min1median SERIES LIVE
+            # min1median SERIES LIVE
             sendto = 'AJ2'
             min1median = min1median.replace([np.nan, np.inf, -np.inf], '')
             worksheet.update(sendto,[min1median.columns.values.tolist()] + min1median.values.tolist())
-            sendto = 'AP2'
+            sendto11 = 'AP2'
             min1mediaCAPS = min1mediaCAPS.replace([np.nan, np.inf, -np.inf], '')
-            worksheet.update(sendto,[min1mediaCAPS.columns.values.tolist()] + min1mediaCAPS.values.tolist())
+            worksheet.update(sendto11,[min1mediaCAPS.columns.values.tolist()] + min1mediaCAPS.values.tolist())
             sendto = 'AQ2'
             min1meanCAPS = min1meanCAPS.replace([np.nan, np.inf, -np.inf], '')
             worksheet.update(sendto,[min1meanCAPS.columns.values.tolist()] + min1meanCAPS.values.tolist())
-
-
             GP2price = 'AG2'
             worksheet.update(GP2price,[GP2priceticks.columns.values.tolist()] + GP2priceticks.values.tolist())
             GP3price = 'AH2'
-            worksheet.update(GP3price,[GP3priceticks.columns.values.tolist()] + GP3priceticks.values.tolist())
+            try:
+                # Code that might raise an error
+                worksheet.update(GP3price,[GP3priceticks.columns.values.tolist()] + GP3priceticks.values.tolist())
+            except:
+                pass  # Do nothing and continue
             GP4price = 'AI2'
-            worksheet.update(GP4price,[GP4priceticks.columns.values.tolist()] + GP4priceticks.values.tolist())
-
+            try:
+                # Code that might raise an error
+                worksheet.update(GP4price,[GP4priceticks.columns.values.tolist()] + GP4priceticks.values.tolist())
+            except:
+                pass  # Do nothing and continue
         #___________________________________________END OF EXPORINTG_____________________________________________________________
-
-
-
-
-
-
-
-
-
-
         #___________________________________________UPDATE latest total Nvol for daily storage___________________________________________________________
-
-        csv_df = pd.read_csv('NvolTOTdaily.csv')
+        csv_df = pd.read_csv('NvolTOTdaily.csv', on_bad_lines='skip')
         # Create a new DataFrame with the values you want to replace the last row with
         # Make sure the new row has the same structure (same number of columns) as the original CSV
         today = datetime.today()
@@ -1176,26 +1020,22 @@ def main_loop():
         }
         new_row = pd.DataFrame([new_values])
         # Replace the last row in the CSV DataFrame with the new row
-        csv_df.iloc[-1] = new_row.iloc[0]
+        print("@@@@@@--------------------------------@@@@@@@@@@@@@@@@@@@@")
+        print(csv_df.columns)
+        print(new_row.columns)
+        print("@@@@@@--------------------------------@@@@@@@@@@@@@@@@@@@@")
+        #csv_df.iloc[-1] = new_row.iloc[0]
         # Save the updated DataFrame back to the CSV
         csv_df.to_csv('NvolTOTdaily.csv', index=False)
         print("updated daily sum")
-
-
-
-
-
+        print("@@@@@@--------------------------------@@@@@@@@@@@@@@@@@@@@")
         # ____________________________________________ STORE DATA _________________________________________________________
         #print("binning data",flush=True)
         nvols_vols_and_bins = bin_and_aggregate(df,nvols_vols_and_bins) #bin the data and aggregate it
-
-
         #nvols_vols_and_bins = bin_caps(df,nvols_vols_and_bins)
-
-
         save_nvols_vols_and_bins(nvols_vols_and_bins, nvols_vols_and_bins_directory)    #save the data to a pickle file
         ###################################################################################################################
-
+        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
         if num_batch%5 == 0:    
             print("distro Queue size before put:", shared_queue.qsize(),flush=True)
             shared_queue.put(nvols_vols_and_bins)   #put the data in the queue to be sent to the dashboard
@@ -1206,21 +1046,30 @@ def main_loop():
         print("NvolTOTAL: ", NvollatestSUM,"B",flush=True,)  #print total latest Nvol
         print("NvolLASTtick: ",Nvolchng,"M",flush=True)  #print the latest Nvol change per tick
         print("SPX: ",spxLAST,flush=True)
-
-        print("test:::min1mean: ",min1mean.iloc[-1],flush=True)
-        print("test:::min1median: ",min1median.iloc[-1],flush=True)
-        print("test:::min1mediaCAPS: ",min1mediaCAPS.iloc[-1],flush=True)       
-        print("test:::min1meanCAPS: ",min1meanCAPS.iloc[-1],flush=True)   
+        try:
+            print("test:::min1mean: ", min1mean.iloc[-1], flush=True)
+        except Exception as e:
+            print(f"Skipped problematic line due to error: {e}", flush=True)
+        try:
+            print("test:::min1median: ", min1median.iloc[-1], flush=True)
+        except Exception as e:
+            print(f"Skipped problematic line due to error: {e}", flush=True)
+        try:
+            print("test:::min1mediaCAPS: ", min1mediaCAPS.iloc[-1], flush=True)
+        except Exception as e:
+            print(f"Skipped problematic line due to error: {e}", flush=True)
+        try:
+            print("test:::min1meanCAPS: ", min1meanCAPS.iloc[-1], flush=True)
+        except Exception as e:
+            print(f"Skipped problematic line due to error: {e}", flush=True)
         print("tick-time:",end_time - start_time,flush=True)   #print the time it took to gather the data
         ticktime = end_time - start_time
         #print("Average time: ", time_sum/num_batch,flush=True)  #print the average time it takes to gather the data
-
         #if the time is after 22:59:20, save the nvols_vols_and_bins to a variable called end_day_distro
         if datetime.now().time() > datetime.strptime("22:59:45", "%H:%M:%S").time():
             end_day_distro = nvols_vols_and_bins
             print("$$$end day distro saved, market is closed, breaking main loop$$$",flush=True)
             break
-
         # KEEP LOOP AT 60s on point
         time.sleep(60-ticktime)
     print("its over for today, piss off")
@@ -1229,3 +1078,29 @@ def main_loop():
         #print("pushing end day distro to queue")
         #shared_queue.put(end_day_distro)
         #time.sleep(5)
+
+
+
+
+max_CRASHES = 3
+crash_count = 0
+
+
+
+if __name__ == "__main__":
+    while crash_count <= max_CRASHES:
+        try:
+            main_loop()
+        except Exception as e:
+            crash_count += 1
+            print(f"main_loop crashed ({crash_count}/{max_CRASHES}) with exception:")
+            traceback.print_exc()
+            if crash_count > max_CRASHES:
+                print("Crash limit exceeded. Running fallback script...")
+                subprocess.run([
+                    "python", 
+                    r"C:\Users\DANNY\Desktop\projectsMAIN\PROJCTalpha\client_api_gatherer_unstabler.py"
+                ])
+                break
+            print("Restarting main_loop in 25 seconds...")
+            time.sleep(25)
